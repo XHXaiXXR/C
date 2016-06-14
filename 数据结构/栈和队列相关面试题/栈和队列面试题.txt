@@ -1,0 +1,662 @@
+#include <iostream>
+#include <stack>
+#include <queue>
+#include <assert.h>
+using namespace std;
+
+//1、实现一个栈，要求实现Push（出栈）、Pop（入栈）、Min（返回最小值的操作）的时间复杂度为O(1)
+//思路：
+//    1、用两个栈实现，一个栈保存所有的入栈元素，另一个栈专门用来保存要返回的最小值
+//    2、用一个栈实现，每次当插入的值大于要返回的最小值时，先把要入栈的元素入栈，再把要返回的最小值入栈，但是感觉这样会
+//       破坏栈的结构
+
+/*
+template<typename T>
+class Stack
+{
+public:
+	Stack()
+	{}     //利用atack的构造函数构造dataSta与minDataSta即可
+
+	Stack(const Stack& sta)
+	{
+		   //利用stack的拷贝构造函数或赋值运算符重载函数
+		dataSta = sta.dataSta;
+		minDataSta = sta.minDataSta;
+	}
+
+	~Stack()
+	{}     //利用stack的析构函数释放dataSta与minDataSta的空间即可
+
+	void Push(const T& t)
+	{
+	    //当前入栈的元素比最小栈的栈顶都小，说明现在该元素才是栈中最小的，所以把它也入栈到最小栈
+		if (minDataSta.empty() || minDataSta.top() > t)
+		{
+			dataSta.push(t);
+			minDataSta.push(t);
+		}
+		else
+		{
+			dataSta.push(t);
+		}
+	}
+
+	void Pop()
+	{
+		assert(!dataSta.empty());       //空栈无法Pop数据
+		//要是当前出栈的元素与最小栈的栈顶元素相等，说明最小元素出栈了，那么就得更新最小值，即让最小栈栈顶元素出栈
+		if (minDataSta.top() == dataSta.top())
+		{
+			minDataSta.pop();
+			dataSta.pop();
+		}
+		else
+		{
+			dataSta.pop();
+		}
+	}
+
+	T& Top()
+	{
+		assert(!dataSta.empty());
+		return dataSta.top();
+	}
+
+	T& Min()
+	{
+		assert(!dataSta.empty());
+		return minDataSta.top();
+	}
+
+	bool Empty()
+	{
+		return dataSta.empty();
+	}
+
+	size_t Size()
+	{
+		return dataSta.size();
+	}
+private:
+	stack<T> dataSta;
+	stack<T> minDataSta;
+};
+
+void Test()
+{
+	Stack<int> sta;
+	sta.Push(6);
+	sta.Push(4);
+	sta.Push(8);
+	sta.Push(0);
+	sta.Push(2);
+	sta.Push(9);
+	sta.Push(5);
+	cout << "Min:" << sta.Min() << endl;
+	cout << "Top:" << sta.Top() << endl;
+	cout << "Empty:" << sta.Empty() << endl;
+	cout << "Size:" << sta.Size() << endl;
+
+	sta.Pop();
+	sta.Pop();
+	sta.Pop();
+	sta.Pop();
+	cout << "Min:" << sta.Min() << endl;
+}
+
+int main()
+{
+	Test();
+	return 0;
+}
+*/
+
+
+
+
+
+//2、使用两个栈实现一个队列
+//思路：当两个栈都为空时，只能做入队操作，当两个栈不都为空时，入队、出队操作都可以实现。
+//      inSta只用于入栈，outSta只用于出栈
+//过程：
+//      入队：不管outSta是否为空，都直接把元素入栈到inSta
+//      出队：1、当inSta、outSta都为空时，队列里面无元素，无法实现出栈
+//            2、当outSta为空时，把inSta除栈底元素外的所有元素出栈，并按照出栈顺序入栈到outSta，把inSta的栈底元素出栈
+//            3、当outSta不为空时，说明上一操作为出栈，此时把outSta的栈顶元素出栈即可
+
+/*
+template<typename T>
+class TwoStackForQueue
+{
+public:
+	TwoStackForQueue()
+	{
+		//利用stack的构造函数构造inSta与outSta即可
+	}
+
+	TwoStackForQueue(const TwoStackForQueue& que)
+	{
+		inSta = que.inSta;
+		outSta = que.outSta;
+	}
+
+	~TwoStackForQueue()
+	{
+		//inSta和outSta空间的释放由stack类来完成
+	}
+
+	void Push(const T& t)
+	{
+		inSta.push(t);
+	}
+
+	void Pop()
+	{
+		assert(!inSta.empty() || !outSta.empty());    //队列为空的情况
+		if (outSta.size() == 0)
+		{
+			//说明此时是第一次执行出对列或之前outSta里面的数据全部被出栈了
+			while (inSta.size() != 1)
+			{
+				outSta.push(inSta.top());
+				inSta.pop();
+			}
+			inSta.pop();
+		}
+		//说明之前留在outSta里面的元素没有被全部出栈
+		else
+		{
+			outSta.pop();
+		}
+	}
+
+	T& Front()
+	{
+		assert(!inSta.empty() || !outSta.empty());    //队列为空的情况
+		if (outSta.size() != 0)
+		{
+			return outSta.top();
+		}
+		else
+		{
+			//这儿要把inSta的元素全部移到outSta里面 不然下一次操作为pop时  outSta不为空 但它的栈顶元素却不是队首元素 
+			//是inSta此时的栈顶  队首元素还在inSta里面
+			while (inSta.size() != 0)
+			{
+				outSta.push(inSta.top());
+				inSta.pop();
+			}
+			return outSta.top();
+		}
+	}
+
+	T& Back()
+	{
+		assert(!inSta.empty() || !outSta.empty());    //队列为空的情况
+		if (inSta.size() != 0)
+		{
+			return inSta.top();
+		}
+		else
+		{
+			//这儿要把outSta的元素全部移到inSta里面 不然下一此操作为pop时outSta不为空 但它的栈顶元素却不是队首元素  而是队尾元素
+			while (outSta.size() != 0)
+			{
+				inSta.push(outSta.top());
+				outSta.pop();
+			}
+			return inSta.top();
+		}
+	}
+
+	bool Empty()
+	{
+		if (inSta.empty() && outSta.empty())
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	size_t Size()
+	{
+		//返回两个栈的元素个数和
+		return inSta.size() + outSta.size();
+	}
+
+	//为了测试正确性，写一个输出运算符重载
+	template<typename T>
+	friend ostream& operator<<(ostream& os, const TwoStackForQueue<T>& que);
+private:
+	stack<T> inSta;
+	stack<T> outSta;
+};
+
+template<typename T>
+ostream& operator<<(ostream& os, const TwoStackForQueue<T>& que)
+{
+	TwoStackForQueue<T> coutque(que);
+	os << "Queue: ";
+	//根据入队序列输出 inSta不为空：inSta栈顶-->最后入队的元素   outSta不为空：outSta栈顶-->最先入队的元素
+	while (coutque.outSta.size() > 0)
+	{
+		os << coutque.outSta.top() << "  ";
+		coutque.outSta.pop();
+	}
+	while (coutque.inSta.size() > 0)
+	{
+		coutque.outSta.push(coutque.inSta.top());
+		coutque.inSta.pop();
+	}
+	while (coutque.outSta.size() > 0)
+	{
+		os << coutque.outSta.top() << "  ";
+		coutque.outSta.pop();
+	}
+	os << "NULL";
+	return os;
+}
+
+void Test()
+{
+	TwoStackForQueue<int> que;
+	que.Push(0);
+	que.Push(5);
+	que.Push(4);
+	que.Push(1);
+	que.Push(2);
+	que.Push(3);
+	cout << que << endl;
+
+
+	que.Pop();
+	que.Pop();
+	cout << que << endl;
+
+
+	cout << que.Front() << endl;
+	cout << que.Back() << endl;
+	cout << que.Empty() << endl;
+	cout << que.Size() << endl;
+}
+
+int main()
+{
+	Test();
+	return 0;
+}
+*/
+
+
+
+
+
+//3、使用两个队列实现一个栈
+//思路：在操作完成后，元素始终只存在于一个队列中，不会存在两个队列中都有元素的情况
+//过程：
+//    1、入栈：
+//             1、两个队都为空，默认入队到que1
+//             2、把元素入队到不为空的那个队列中
+//    2、出栈：
+//             1、两个对都为空，栈中无元素，无法出栈
+//             2、把不为空的那个队列的除队尾元素全部出队，并按照出队顺序入队到另一个队列，最后再把队尾元素出队即可完成
+
+/*
+template<typename T>
+class TwoQueueForStack
+{
+public:
+	TwoQueueForStack()
+	{}            //利用queue的构造函数来构造que1与que2
+
+	TwoQueueForStack(const TwoQueueForStack& sta)
+	{
+		          //用queue的拷贝构造函数或者赋值运算符重载来构造que1与que2
+		que1 = sta.que1;
+		que2 = sta.que2;
+	}
+
+	~TwoQueueForStack()
+	{}            //利用queue的析构函数来释放que1与que2的空间
+
+	void Push(const T& t)
+	{
+		if (que2.empty())
+		{
+			que1.push(t);
+		}
+		else
+		{
+			que2.push(t);
+		}
+	}
+
+	void Pop()
+	{
+		assert(!que1.empty() || !que2.empty());      //栈为空，无法出栈
+		if (que1.empty())      //说明元素都在que2中，把que2除队尾元素出队并入队到que1中，再把que2队尾元素出队即可
+		{
+			while (que2.size() > 1)
+			{
+				que1.push(que2.front());
+				que2.pop();
+			}
+			que2.pop();
+		}
+		else                   //说明元素都在que1中，把que1除队尾元素出队并入队到que2中，再把que1队尾元素出队即可
+		{
+			while (que1.size() > 1)
+			{
+				que2.push(que1.front());
+				que1.pop();
+			}
+			que1.pop();
+		}
+	}
+
+	T& Top()
+	{
+		assert(!que1.empty() || !que2.empty());
+		//返回存储有元素的对列的队尾元素即可
+		if (que1.empty())
+		{
+			return que2.back();
+		}
+		else
+		{
+			return que1.back();
+		}
+	}
+
+	bool Empty()
+	{
+		return que1.empty() && que2.empty();   //即判断两个栈是否都为空
+	}
+
+	size_t Size()
+	{
+		return que1.size() + que2.size();      //返回两个队元素和
+	}
+private:
+	queue<T> que1;
+	queue<T> que2;
+};
+
+void Test()
+{
+	TwoQueueForStack<int> sta;
+	sta.Push(0);
+	sta.Push(1);
+	sta.Push(2);
+	sta.Push(3);
+	sta.Push(4);
+
+	cout << "Top:" << sta.Top() << endl;
+	cout << "Size:" << sta.Size() << endl;
+	cout << "Empty:" << sta.Empty() << endl;
+
+	sta.Pop();
+	sta.Pop();
+	cout << "Top:" << sta.Top() << endl;
+	cout << "Size:" << sta.Size() << endl;
+	cout << "Empty:" << sta.Empty() << endl;
+}
+
+int main()
+{
+	Test();
+	return 0;
+}
+*/
+
+
+
+
+
+//4、元素入栈、出栈顺序的合法性，如入栈的序列为（1，2，3，4，5），出栈序列为（4，5，3，2，1）
+//思路：借用一个辅助栈来保存出栈序列中的元素
+//检查过程：     
+//      1、检查辅助栈是否为空，为空，则把入栈序列未入栈的元素入栈，不为空则比较辅助栈的栈顶和此时出栈的元素，要是不相等，
+//         则把入栈序列元素依次入栈，直到两个栈的栈顶元素相同为止，此时把辅助栈栈顶元素出栈，并把出队序列指针后移。
+//      2、重复上一步的操作。
+//      3、要是最终使出栈序列对应的栈为空，那么就说明出栈序列是正确的，要是入栈序列的所有元素都入栈,仍不能满足辅助栈栈顶元素
+//         与此时要出栈的元素相同，那么就说明出栈序列是错误
+
+/*
+template<typename T>
+bool IsCorrect(T* inSta, T* outSta, size_t len)
+{
+	stack<T> sta;      //保存出栈序列的元素
+	int index = 0;
+	int num = 0;
+	while (index < len)
+	{
+		//辅助栈为空或栈顶元素与此时要出栈的元素不相等且入栈序列还有元素未入栈，那么就把入栈序列里面没有入栈的元素依次入栈
+		while (sta.empty() || (sta.top() != outSta[num] && index < len))
+		{
+			sta.push(inSta[index++]);
+		}
+		//只要此时辅助栈不为空且出栈元素与栈顶元素相等，那么就把栈顶元素出栈，并且出栈元素更新为出栈序列中的下一个元素
+		while (!sta.empty() && (sta.top() == outSta[num] && num < len))
+		{
+			sta.pop();
+			num++;
+		}
+		//要是入栈序列的所有元素都入栈了，但栈顶元素与要出栈的元素不相等（即入栈序列的所有元素都入栈并执行完上一操作后，栈不为空）
+		//则说明此时的出栈序列不合法
+		if (index == len && num < len)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+
+int main()
+{
+	int inArr[] = { 1, 2, 3, 4, 5 };
+	int outArr[] = { 1, 4, 3, 2, 5 };
+	cout << IsCorrect(inArr, outArr, 5) << endl;
+	int outArr[] = { 1, 4, 2, 3, 5 };
+	cout << IsCorrect(inArr, outArr, 5) << endl;
+	getchar();
+	return 0;
+}
+*/
+
+
+
+
+
+
+//5、一个数组实现两个栈
+//思路：双向增长法
+//      两个栈的栈底分别指向数组的两端，栈顶不断向另一个栈的栈底靠近。
+//过程：
+//      1、假设以数组首端为栈底的栈叫Stack1，以数组尾端为栈底的栈Stack2，那么当Stack1的栈顶指针大于Stack2的栈顶指针时，需扩容
+//      2、在实现Push与Pop操作是需要多传一个参数flag以确定是对哪一个栈进行操作
+
+
+//思路2：交替索引法/交叉索引-->缺点：空间的浪费，若是一个栈满，另一个栈还没存东西，此时本来还可以向数组里面存东西，不过要是向
+//                                   已经栈满的栈插入元素，那么就会因空间不够而开辟空间，这就是空间的浪费
+//                             优点：不仅可以用一个数组实现两个栈，还可以实现多个栈
+
+/*
+template<typename T>
+class ArrayForTwoStack
+{
+public:
+	ArrayForTwoStack()
+		: _data(NULL)
+		, _capacity(0)
+		, top1(-2)
+		, top2(-1)
+	{}
+
+	ArrayForTwoStack(const ArrayForTwoStack& sta)
+	{
+		_data = new T[sta._capacity];
+		//空间考皮成功了再改变它的容量值
+		_capacity = sta._capacity;
+		top1 = sta.top1;
+		top2 = sta.top2;
+		int index = 0;
+		//深拷贝
+		int count = top1 > top2 ? top1 : top2;
+		while (index <= count)
+		{
+			_data[index] = sta._data[index];
+			index++;
+		}
+	}
+
+	~ArrayForTwoStack()
+	{
+		if (_data != NULL)
+		{
+			delete[] _data;
+			_data = NULL;
+		}
+	}
+
+	void Push(int flag, const T& t)
+	{
+		CheckCapacity();
+
+		//交替插入两个栈的数据，下标为偶数的存储top1对应的栈的数据，下标为奇数的存储top2对应的栈的数据
+		if (flag == 1)    //flag表示对哪一个栈进行操作，为1表示对top1对应的栈操作，不为1表示对top2对应的栈操作
+		{
+			top1 += 2;
+			_data[top1] = t;
+		}
+		else
+		{
+			top2 += 2;
+			_data[top2] = t;
+		}
+	}
+
+	void Pop(int flag)
+	{
+		if (flag == 1)
+		{
+			assert(top1 != -2);    //栈为空，无法实现出栈
+			top1 -= 2;
+		}
+		else
+		{
+			assert(top2 != -1);    //栈为空，无法实现出栈
+			top2 -= 2;
+		}
+	}
+
+	T& Top(int flag)
+	{
+		if (flag == 1)
+		{
+			assert(top1 != -2);
+			return _data[top1];
+		}
+		else
+		{
+			assert(top2 != -1);
+			return _data[top2];
+		}
+	}
+
+	bool Empty(int flag)
+	{
+		if (flag == 1)
+		{
+			return top1 == -2;
+		}
+		else
+		{
+			return top2 == -1;
+		}
+	}
+
+	size_t Size(int flag)
+	{
+		if (flag == 1)
+		{
+			return (top1 + 2) / 2;
+		}
+		else
+		{
+			return (top2 + 2 - 1) / 2;
+		}
+	}
+private:
+	void CheckCapacity()
+	{
+		if (top1 + 2 >= _capacity || top2 + 2 >= _capacity)    //满足条件即栈满
+		{
+			T* temp = new T[_capacity * 2 + 3];
+			int index = 0;
+			int count = top1 > top2 ? top1 : top2;
+			while (index <= count)
+			{
+				temp[index] = _data[index];
+				index++;
+			}
+			_capacity = _capacity * 2 + 3;
+			delete[] _data;
+			_data = temp;
+		}
+	}
+private:
+	T* _data;
+	size_t _capacity; 
+	int top1;    //用数组地址加top1表示第一个栈的栈顶
+	int top2;    //用数组地址加top2表示第二个栈的栈顶
+};
+
+void Test()
+{
+	ArrayForTwoStack<int> sta;
+	sta.Push(1, 0);
+	sta.Push(1, 1);
+	sta.Push(1, 2);
+	sta.Push(1, 3);
+	sta.Push(1, 4);
+
+	cout << "Top:" << sta.Top(1) << endl;
+	cout << "Empty:" << sta.Empty(1) << endl;
+	cout << "Size:" << sta.Size(1) << endl;
+
+	sta.Pop(1);
+	sta.Pop(1);
+	cout << "Top:" << sta.Top(1) << endl;
+	cout << "Empty:" << sta.Empty(1) << endl;
+	cout << "Size:" << sta.Size(1) << endl;
+	
+
+	sta.Push(2, 5);
+	sta.Push(2, 6);
+	sta.Push(2, 7);
+	sta.Push(2, 8);
+	sta.Push(2, 9);
+
+	cout << "Top:" << sta.Top(2) << endl;
+	cout << "Empty:" << sta.Empty(2) << endl;
+	cout << "Size:" << sta.Size(2) << endl;
+
+	sta.Pop(2);
+	sta.Pop(2);
+	cout << "Top:" << sta.Top(2) << endl;
+	cout << "Empty:" << sta.Empty(2) << endl;
+	cout << "Size:" << sta.Size(2) << endl;
+}
+
+int main()
+{
+	Test();
+	return 0;
+}
+*/
