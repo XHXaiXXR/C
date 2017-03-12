@@ -1,5 +1,7 @@
 #pragma once
 
+#include <assert.h>
+
 template<class T>
 struct ListNode
 {
@@ -42,9 +44,14 @@ public:
 				_head->_next = cur->_next;
 				delete del;
 				del = NULL;
+				_size--;
+
+				if(_size == 0)
+				{
+					break;
+				}
 
 				cur = _head->_next;
-				_size--;
 			}
 
 			delete _head;
@@ -119,7 +126,7 @@ public:
 	}
 
 	//头插法
-	void PushFrond(T data)
+	void PushFront(T data)
 	{
 		Node* cur = new Node(data);
 		if (_head->_next == NULL)
@@ -136,7 +143,7 @@ public:
 	}
 
 	//头删
-	void PopFrond()
+	void PopFront()
 	{
 		if (_head->_next == NULL)
 		{
@@ -183,6 +190,43 @@ public:
 
 			return NULL;
 		}
+	}
+
+	//在pos位置前插入一个节点
+	void Insert(Node* pos,T data)
+	{
+		Node* newNode = new Node(data);
+
+		if (_head->_next == NULL)
+		{
+			cout<<"链表为空,没有pos节点"<<endl;
+			return;
+		} 
+		else if(_head->_next == pos)
+		{
+			newNode->_next = pos;
+			_head->_next = newNode;
+		}
+		else
+		{
+			Node* cur = _head->_next;
+
+			while (cur->_next != pos && cur != _head)
+			{
+				cur = cur->_next;
+			}
+			
+			if(cur == NULL || cur == _head)
+			{
+				cout<<"没有找到对应的位置"<<endl;
+				return;
+			}
+
+			newNode->_next = pos;
+			cur->_next = newNode;
+		}
+
+		_size++;
 	}
 
 	//删除pos位置的节点
@@ -244,6 +288,223 @@ public:
 	size_t SizeNode()
 	{
 		return _size;
+	}
+
+	//链表的冒泡排序
+	void BubbingSortList(List<T>& l)
+	{
+		Node* cur = l._head->_next;
+
+		for (int i = 0;i < _size - 1;i++)
+		{
+			for (int j = 0;j < _size - 1 - i;j++)
+			{
+				if (cur->_data > cur->_next->_data)
+				{
+					swap(cur->_data,cur->_next->_data);
+				}
+				cur = cur->_next;
+			}
+			cur = l._head->_next;
+		}
+	}
+
+	//删除一个无头链表的非尾结点
+	void EraseNotHead(Node* pos)
+	{
+		Node* del = pos->_next;
+		pos->_data = del->_data;
+		pos->_next = del->_next;
+
+		delete del;
+		del = NULL;
+
+		_size--;
+	}
+
+	//逆置链表
+	void ReverseList()
+	{
+		Node* newNode = NULL;
+		Node* cur = NULL;
+		Node* head = _head->_next;
+		
+		Node* newtail = head;
+		while (head != _tail)
+		{
+			newNode = head;
+			head = head->_next;
+			newNode->_next = cur;
+			cur = newNode;
+		}
+
+		head->_next = cur;
+		_head->_next = head;
+		_tail = newtail;
+	}
+
+	//(无头链表)在当前节点前插入一个节点
+	void InsertFrontNode(Node* pos, T data)
+	{
+		Node* newNode = new Node(data);
+
+		newNode->_next = pos->_next;
+		pos->_next = newNode;
+		swap(pos->_data, newNode->_data);
+
+		_size++;
+	}
+
+	//只遍历一遍，找到链表的中间结点
+	Node* FindMidNode()
+	{
+		Node* slowNode = _head->_next;
+		Node* fastNode = _head->_next;
+
+		while (fastNode->_next != NULL && fastNode->_next->_next != NULL)
+		{
+			slowNode = slowNode->_next;
+			fastNode = fastNode->_next->_next;
+		}
+
+		return slowNode;
+	}
+
+	//删除倒数第K个节点
+	void DelKNode(int K)
+	{
+		assert(K > 1 && K < _size);
+
+		Node* KNode = _head->_next;
+		Node* cur = _head->_next;
+		Node* prev = NULL;
+
+		while (--K)
+		{
+			KNode = KNode->_next;
+		}
+
+		while (KNode->_next != NULL)
+		{
+			prev = cur;
+			cur = cur->_next;
+			KNode = KNode->_next;
+		}
+
+		prev->_next = cur->_next;
+		delete cur;
+		cur = NULL;
+
+		_size--;
+	}
+
+	//约瑟夫环问题
+	Node* JosephCycle(int num)
+	{
+		Node* cur = _head->_next;
+		Node* del = NULL;
+		int k = 0;
+
+		while (cur->_next != cur)
+		{
+			k = num;
+			while(--k)
+			{
+				cur = cur->_next;
+			}
+
+			cout<<"删除节点为: "<<cur->_data<<endl;
+			del = cur->_next;
+			cur->_data = del->_data;
+			cur->_next = del->_next;
+
+			delete del;
+			del = NULL;
+		}
+
+		_head->_next = cur;
+		cur->_next = NULL;
+
+		return cur;
+	}
+
+	//判断链表是否带环
+	Node* CheckCycle()
+	{
+		Node* slowNode = _head->_next;
+		Node* fastNode = _head->_next;
+
+		while (fastNode && fastNode->_next)
+		{
+			slowNode = slowNode->_next;
+			fastNode = fastNode->_next->_next;
+
+			if (slowNode == fastNode)
+			{
+				return fastNode;
+			}
+		}
+
+		return NULL;
+	}
+
+	//求环的长度
+	int GetCycleLenght(Node* meet)
+	{
+		Node* cur = meet;
+		Node* newcur = cur;
+
+		int count = 1;
+		do 
+		{
+			++count;
+			cur = cur->_next;
+		} while (cur->_next != newcur);
+
+		return count;
+	}
+
+	//求环的入口
+	Node* GetCycleEntryNode(Node* meet)
+	{
+		Node* cur = _head->_next;
+		
+		while (cur != meet)
+		{
+			cur = cur->_next;
+			meet = meet->_next;
+		}
+
+		return cur;
+	}
+
+	//判断两个链表是否相交
+	bool CheckCroo(List<T> l2)
+	{
+		//两个量表中只要其中一个链表带环，那么两条链表绝对不可能相交
+		if (CheckCycle() || l2.CheckCycle())
+		{
+			return false;
+		}
+
+		Node* node1 = _head->_next;
+		Node* node2 = l2._head->_next;
+
+		while (node1->_next)
+		{
+			node1 = node1->_next;
+		}
+		while (node2->_next)
+		{
+			node2 = node2->_next;
+		}
+
+		if (node1 == node2)
+		{
+			return true;
+		}
+
+		return false;
 	}
 private:
 	Node* _head;
