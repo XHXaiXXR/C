@@ -83,6 +83,7 @@ int main(int argc,char* argv[])
 				}
 			}
 		}
+		
 
 		struct timeval timeout = {0, 0};//设置轮寻的时间为5秒	
 		//select（最大文件描述符的值+1， 只读文件描述符集，只写文件描述符集，异常错误文件描述符集，设置超时时间）
@@ -101,9 +102,14 @@ int main(int argc,char* argv[])
 				break;
 			default:
 				{
+					
 					int k = 0;
 					for(;k < _SIZE_;k++)
 					{
+						if(gfds[k] < 0)
+						{
+							continue;
+						}
 						if(k== 0 && FD_ISSET(listen_sock, &rfds))
 						{
 							//监听到连接请求，进行三次握手
@@ -124,28 +130,24 @@ int main(int argc,char* argv[])
 							int m = 0;
 							for(;m < _SIZE_;m++)
 							{
-							printf("this....\n");
 								//找一个最小的无效的位置放进新的文件描述符
 								if(gfds[m] == -1)
 								{
-									gfds[i] = new_fd;
+									gfds[m] = new_fd;
 									break;
 								}
 							}
-							
+
 							//会有已经没有位置存放的情况，这时候我们应该把放不进的新的文件描述符给关掉
 							if(m == _SIZE_)
 							{
 								close(new_fd);
 							}
-
-							printf("1....\n");
 						}
-						else if(FD_ISSET(gfds[i], &rfds))
+						else if(FD_ISSET(gfds[k], &rfds))
 						{
-							printf("2...\n");
 							char buf[1024];
-							ssize_t _s = read(gfds[i], buf,sizeof(buf)-1);
+							ssize_t _s = read(gfds[k], buf,sizeof(buf)-1);
 
 							if(_s > 0)
 							{
@@ -166,7 +168,6 @@ int main(int argc,char* argv[])
 								perror("read");
 							}
 						}
-						printf("3...\n");
 					}
 				}
 				break;

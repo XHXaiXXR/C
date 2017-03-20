@@ -37,7 +37,6 @@ int main(int argc,char* argv[])
 		return 2;
 	}
 
-	printf("1\n");
 	//链接成功
 	while(1)
 	{
