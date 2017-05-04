@@ -1,0 +1,41 @@
+<html>
+	<body>
+		<h1>hello wrold</h1>
+		<img src="joke.png"> 
+
+		<br/>
+		<a href="joke.html">joke</a>
+		<br/>
+
+		<form name="input" action="/cgi_bin/sql/cgi_sql_insert" method="post">
+			name: <input type="text" name="name">
+			sex: <input type="text" name="sex">
+			age: <input type="text" name="age">
+			tel: <input type="text" name="tel">
+		<input type="submit" value="insert">
+		</form>
+		<br/>
+
+		<form name="input" action="/cgi_bin/sql/cgi_sql_delete" method="get">
+			name: <input type="text" name="name">
+		<input type="submit" value="delete">
+		</form>
+		<br/>
+
+
+		<form name="input" action="/cgi_bin/sql/cgi_sql_delete" method="get">
+			tel: <input type="text" name="tel">
+		<input type="submit" value="delete">
+		</form>
+		<br/>
+
+
+		<form name="input" action="/cgi_bin/sql/cgi_sql_select" method="post">
+			<input type="submit" value="select">
+		</form>
+		<br/><br/>
+</body>
+</html>
+
+
+
