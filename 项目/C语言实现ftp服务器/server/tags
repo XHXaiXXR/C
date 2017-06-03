@@ -1,0 +1,19 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+CC	makefile	/^CC := gcc$/;"	m
+CFLAGS	makefile	/^CFLAGS := -Wall -g -Os$/;"	m
+FTSERVE_H	ftserve.h	2;"	d
+OBJS	makefile	/^OBJS = ftserve.o $(SHDIR)\/common.o$/;"	m
+SHDIR	makefile	/^SHDIR := ..\/common$/;"	m
+ftserve_check_user	ftserve.c	/^int ftserve_check_user(char*user, char*pass)$/;"	f
+ftserve_list	ftserve.c	/^int ftserve_list(int sock_data, int sock_control)$/;"	f
+ftserve_login	ftserve.c	/^int ftserve_login(int sock_control)$/;"	f
+ftserve_process	ftserve.c	/^void ftserve_process(int sock_control)$/;"	f
+ftserve_recv_cmd	ftserve.c	/^int ftserve_recv_cmd(int sock_control, char*cmd, char*arg)$/;"	f
+ftserve_retr	ftserve.c	/^void ftserve_retr(int sock_control, int sock_data, char* filename)$/;"	f
+ftserve_start_data_conn	ftserve.c	/^int ftserve_start_data_conn(int sock_control)$/;"	f
+main	ftserve.c	/^int main(int argc, char *argv[])$/;"	f
