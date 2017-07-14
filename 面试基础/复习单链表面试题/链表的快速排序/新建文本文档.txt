@@ -1,0 +1,37 @@
+private:
+	void _QuickSortList(Node* left, Node* right)//左闭右开
+	{
+		if (left == NULL || left == right || left->_next == NULL)
+		{
+			//第一种情况：空节点还有只有一个节点的时候不需要排序
+			//第二种情况是排序区间缩小到不需要再排序
+			return;
+		}
+
+		//快速排序前后指针法。
+		int key = left->_data;
+		Node* prev = left;
+		Node* cur = left->_next;
+
+		while (cur)
+		{
+			if (cur->_data < key)
+			{
+				prev = prev->_next;
+				if (cur = prev)
+				{
+					swap(cur->_data, prev->_data);
+				}
+			}
+			cur = cur->_next;
+		}
+		swap(left->_data, prev->_data);
+
+		_QuickSortList(left, prev);
+		_QuickSortList(prev->_next, right);
+	}
+public:
+	void QuickSortList()
+	{
+		_QuickSortList(_head, NULL);
+	}
