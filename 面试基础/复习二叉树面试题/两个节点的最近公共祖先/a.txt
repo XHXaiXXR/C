@@ -1,0 +1,33 @@
+Node ParentNearCommAncestor(Node left, Node right)
+       {
+              if (_root == NULL)
+              {
+                     return NULL;
+              }
+              vectorNode v1;
+              vectorNode v2;
+              while (left)
+              {
+                     v1.push_back(left);
+                     left = left-_parent;
+              }
+              while (right)
+              {
+                     v2.push_back(right);
+                     right = right-_parent;
+              }
+              Node cur = NULL;
+              int len = v1.size()  v2.size()  v1.size()  v2.size();
+              while (len--)
+              {
+                     if (v1[len] == v2[len])
+                     {
+                           cur = v1[len];
+                     }
+                     else
+                     {
+                           break;
+                     }
+              }
+              return cur;
+       }
