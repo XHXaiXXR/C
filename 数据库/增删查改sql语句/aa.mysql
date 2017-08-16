@@ -1,0 +1,60 @@
+创建一张表，有id是自增的主键，name和score
+create table stu(
+	id int(10) primary key auto_increment,
+	name char(20) not null,
+	score int(3) not null
+);
+
+展示表
+show tables;
+
+展示表结构
+desc stu;
+
+向表中插入数据
+insert into stu(name, score) values('hh', 65);
+
+查看表中每条记录的所有信息
+select * from stu;
+
+向表中插入数据
+insert into stu(name, score) values('bb', 75),('cc', 49),('dd', 84),('ee', 69),('ff', 88),('gg', 59);
+
+查找成绩为60-70之间同学的名字
+select name from stu where score>=60 and score<=70;
+
+删除表中的一条记录
+delete from stu where id=8;
+
+删除stu表中的name字段
+alter table stu drop name;
+
+修改表中的一条记录的某个属性
+update stu set name='ii',score=63 where id=10;
+
+将name设置为stu表的索引,索引名字为info_idx
+create index info_idx on stu(name);
+
+主键冲突：更新操作
+insert into stu(ID, name) values(1, 'gg') on duplicate key update name='gg';
+
+主键没有冲突直接插入，r若主键冲突直接替换
+replace into stu(ID, name) values(1, 'aa');
+
+order by [字段] 根据某个字段去排序，默认是升序，asc是升序， desc是降序
+select * from stu order by score;
+
+表中有多少条记录
+select count(*) from stu;
+
+从已有的表创建新表(复制了表结构，没有复制表内容)
+create table stu_cp like stu;
+
+等价于select * from aa； all：保留所有的结果
+select all * from aa;
+
+去重：去除表中名字重复的记录
+select distinct name from aa；
+
+字段别名 as
+select name as 姓名 from aa;
