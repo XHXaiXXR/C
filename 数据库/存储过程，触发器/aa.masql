@@ -1,0 +1,238 @@
+创建数据库
+create database student;
+
+进入数据库
+use student;
+
+创建学生表
+create table stu(
+	s_id int(10) primary key auto_increment,
+	s_name char(20) not null,
+	c_id int(10) not null
+);
+
+创建班级表
+create table class(
+	c_id int(10) primary key auto_increment,
+	c_name char(20) not null;
+);
+
+新增外键
+alter table stu add foreign key(c_id) references class(c_id);
+
+show create table stu;   ----  stu_ibfk_1
+
+删除外键
+alter table stu drop foreign key stu_ibfk_1;
+
+创建老师表
+create table tc(
+	t_id int(10) primary key auto_increment,
+	t_name char(20) not null,
+	day int(10) not null
+);
+
+向老师表中插入数据
+insert into tc(t_name, day) values('aa', 23),('bb', 63),('cc', 54),('dd', 27),('ee', 46),('ff', 10);
+
+查询代课天数最多的老师的名字
+（1）找到代课天数最多天数
+select max(day) from tc;
+（2）通过代课天数找到老师的名字
+select t_name from tc where day = (select max(day) from tc);
+
+设置变量	set @变量名 := 变量值
+set @name := 'xiaohong';
+查看变量	select @变量名
+select @name;
+
+select @变量:=字段名 from 数据源； -- 从字段中取值付给变量
+select @maxdayname := t_name from tc where day = (select max(day) from tc);
+
+select 字段名 from 数据源 into @变量；
+select t_id from tc where day = (select max(day) from tc) into @maxdaytid;
+select @maxdaytid;
+
+案例：
+     接受 4 个数字 如果输入 1 则输出春天，2 夏天，3 秋天，4 冬天，其他出错 --
+     使用存储过程来体验 if 的用法。 -- 存储过程类似函数,把一段代码封装起来,当要执行这段代码时候,调用存储过程来实现。
+delimiter $$
+create procedure p(n int)
+begin
+	if n = 1 then
+		select '春天' as '季节';
+	elseif n = 2 then
+		select '夏天' as '季节';
+	elseif n = 3 then
+		select '秋天' as '季节';
+	elseif n = 4 then
+		select '冬天' as '季节';
+	else
+		select '出错' as '季节';
+	end if;
+end$$
+delimiter ;
+
+调用存储过程
+call p(1)
+call p(2)
+
+案例：(case语句)
+     接受 4 个数字 如果输入 1 则输出春天，2 夏天，3 秋天，4 冬天，其他出错 --
+delimiter $$
+create procedure p2(n int)
+begin
+	case n
+	when 1 then
+		select '春天' as '季节';
+	when 2 then 
+		select '夏天' as '季节';
+	when 3 then
+		select '秋天' as '季节';
+	when 4 then
+		select '冬天' as '季节';
+	else
+		select '出错' as '季节';
+	end case;
+end$$
+delimiter ;
+
+循环：
+     loop 循环 标签名:
+           loop leave 标签名 -- 退出循环
+     end loop;
+
+使用loop循环计算1-n的求和
+delimiter $$
+create procedure p3(n int)
+begin
+	declare i int default 1;
+	declare sum int default 0;
+	aa:loop
+		set sum=sum+i;
+		set i=i+1;
+		if i>n then
+			leave aa;
+		end if;
+	end loop;
+	select sum;
+end$$
+delimiter ;
+
+使用while循环计算1-n的求和
+delimiter $$
+create procedure p4(n int)
+begin
+	declare i int default 1;
+	declare sum int default 0;
+	while i <= n do
+		set sum=sum+i;
+		set i=i+1;
+	end while;
+	select sum;
+end$$
+delimiter ;
+
+使用repeat循环计算1-n的求和
+delimiter $$
+create procedure p5(n int)
+begin
+	declare i int default 1;
+	declare sum int default 0;
+	repeat
+		set sum=sum+i;
+		set i=i+1;
+	until i>n end repeat;
+	select sum;
+end$$
+delimiter ;
+
+触发器
+需求：有两张表，一张订单表，一张商品表，每生成一个订单，意味着商品库存要减少
+
+创建商品表
+create table goods(
+	id int(10) primary key auto_increment,
+	name char(20) not null,
+	price int(10) default 1,
+	count int(10) default 0
+)charset utf8;
+
+向商品表中插入数据
+insert into goods(name, price, count) values('ji',48, 100),('ya',37, 50),('yu',20, 80),('rou',50, 60);
+
+创建订单表
+create table my_order(
+	id int(10) primary key auto_increment,
+	g_id int(10) not null,
+	g_num int(10) not null
+);
+
+触发器：订单生成一个，商品库存就要减少
+delimiter $$
+create trigger after_order after insert on my_order 
+for each row
+begin
+	update goods set count=count-1 where id=2;
+end$$
+delimiter ;
+
+查看触发器
+show triggers\G
+
+查看商品库存表
+select * from goods;
+
+下单：向订单表插入数据
+insert into my_order(g_id, g_num) values(2, 1);
+
+查看商品库存表
+select * from goods;
+
+删除触发器
+drop trigger after_order;
+
+使用new和old对记录进行操作,删除的时候是没有 new， 插入的时候没有 old
+delimiter $$
+create trigger after_order after insert on my_order 
+for each row
+begin
+	update goods set count=count-new.g_num where id=new.g_id;
+end$$
+delimiter ;
+
+查看商品库存表
+select * from goods;
+
+下单：向订单表插入数据
+insert into my_order(g_id, g_num) values(1, 18);
+
+查看商品库存表
+select * from goods;
+
+如果库存比订单少，应该不能生成订单，需要分支语句
+delimiter $$
+create trigger before_order before insert on my_order
+for each row
+begin
+	select count from goods where id=new.g_id into @count;
+	if count < new.g_num then
+		insert into XXX values(XXX);
+	end if;
+end$$
+delimiter ;
+
+
+使用输出参数
+delimiter $$
+create procedure p9(in n int, out sum int)
+begin
+	set sum := n * n;
+end$$
+delimiter ;
+
+调用存储过程
+call p9(5, @sum);
+
+查看变量sum的值
+select @sum;
